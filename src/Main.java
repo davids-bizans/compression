@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Main {
-    public static final int WINDOW_SIZE = 20;
+    public static final int WINDOW_SIZE = 5000;
 
     public static class Tuple {
         private final int offset;
@@ -109,42 +109,43 @@ public class Main {
         }
     }
 
-    public void prikolSFailami(){
+    public static void printStatistics(long originalSize, long compressedSize, long decompressedSize){
+        double ratio = (double) originalSize / compressedSize;
+        System.out.println("Original File Size: " + originalSize + " bytes");
+        System.out.println("Compressed File Size: " + compressedSize + " bytes");
+        System.out.println("Decompressed File Size: " + decompressedSize + " bytes");
+        System.out.println("Compression Ratio: " + ratio);
+    }
+
+    public static void compressDecompressFiles(){
         String sourceFilePath = "C:\\Users\\david\\OneDrive\\Desktop\\txt_testing\\input.txt"; // Update with your file path
         String compressedFilePath = "C:\\Users\\david\\OneDrive\\Desktop\\txt_testing\\compressed_file.bin";
         String decompressedFilePath = "C:\\Users\\david\\OneDrive\\Desktop\\txt_testing\\decompressed_output.txt";
 
         try {
-            // Read original content from file
             String originalContent = new String(Files.readAllBytes(Paths.get(sourceFilePath)));
-
-            // Compress the content
             List<Tuple> compressed = compress(originalContent);
-            // Write compressed data to binary file
-            writeCompressedToFile(compressed, compressedFilePath);
 
-            // Read compressed data from binary file
+            writeCompressedToFile(compressed, compressedFilePath);
             List<Tuple> compressedData = readCompressedFromFile(compressedFilePath);
-            // Decompress the content
+
             String decompressedContent = decompress(compressedData);
-            // Write decompressed content to text file
             writeDecompressedToFile(decompressedContent, decompressedFilePath);
 
-            // Display file sizes for comparison
+            // Display comparison
             long originalSize = new File(sourceFilePath).length();
             long compressedSize = new File(compressedFilePath).length();
             long decompressedSize = new File(decompressedFilePath).length();
 
-            System.out.println("Original File Size: " + originalSize + " bytes");
-            System.out.println("Compressed File Size: " + compressedSize + " bytes");
-            System.out.println("Decompressed File Size: " + decompressedSize + " bytes");
+            printStatistics(originalSize, compressedSize, decompressedSize);
+
 
         } catch (IOException e) {
             System.err.println("Error during processing: " + e.getMessage());
         }
     }
 
-    public static void main(String[] args) {
+    public static void checkString(){
         String input = "Hello, Hello, Hello!";
         List<Tuple> compressed = compress(input);
         String decompressed = decompress(compressed);
@@ -152,5 +153,10 @@ public class Main {
         System.out.println("Original: " + input);
         System.out.println("Compressed: " + compressed);
         System.out.println("Decompressed: " + decompressed);
+
+    }
+
+    public static void main(String[] args) {
+        compressDecompressFiles();
     }
 }
