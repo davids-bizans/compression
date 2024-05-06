@@ -3,6 +3,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 public class Main {
     public static final int WINDOW_SIZE = 5000;
@@ -117,10 +118,9 @@ public class Main {
         System.out.println("Compression Ratio: " + ratio);
     }
 
-    public static void compressDecompressFiles(){
-        String sourceFilePath = "C:\\Users\\david\\OneDrive\\Desktop\\txt_testing\\input.txt"; // Update with your file path
-        String compressedFilePath = "C:\\Users\\david\\OneDrive\\Desktop\\txt_testing\\compressed_file.bin";
-        String decompressedFilePath = "C:\\Users\\david\\OneDrive\\Desktop\\txt_testing\\decompressed_output.txt";
+    public static void compressDecompressFiles(String sourceFilePath){
+        String compressedFilePath = sourceFilePath + ".bin";
+        String decompressedFilePath = sourceFilePath + "_decompressed.txt";
 
         try {
             String originalContent = new String(Files.readAllBytes(Paths.get(sourceFilePath)));
@@ -139,7 +139,6 @@ public class Main {
 
             printStatistics(originalSize, compressedSize, decompressedSize);
 
-
         } catch (IOException e) {
             System.err.println("Error during processing: " + e.getMessage());
         }
@@ -157,6 +156,31 @@ public class Main {
     }
 
     public static void main(String[] args) {
-        compressDecompressFiles();
+        Scanner scanner = new Scanner(System.in);
+        String inputFilePath;
+
+        while (true) {
+            System.out.println("Enter the path of the file you want to compress ( type 'about' to info or type 'exit' to quit):");
+            inputFilePath = scanner.nextLine();
+
+            if (inputFilePath.equalsIgnoreCase("exit")) {
+                break;
+            } else if (inputFilePath.equals("about")) {
+                System.out.println("This program compresses and decompresses text files using the Lempel-Ziv-Welch algorithm.");
+                System.out.println();
+                System.out.println("Group name : Pop_u_cenši");
+                System.out.println();
+                System.out.println("Authors:\n" +
+                        "Dāvids Bižāns 231RDB005\n" +
+                        "Andrejs Bistrovs 231RDB020\n" +
+                        "Timurs Vahitovs 231RDB096\n" +
+                        "Dominiks Stalovičs 231RDB051\n" +
+                        "Aleksejs Vereščagins 231RDB115\n");
+                continue;
+            }
+
+            compressDecompressFiles(inputFilePath);
+        }
+        scanner.close();
     }
 }
