@@ -109,89 +109,140 @@ public class Main {
         return compressed;
     }
 
+    public static void about(){
+        System.out.println("Authors:\n" +
+                "Dāvids Bižāns 231RDB005\n" +
+                "Andrejs Bistrovs 231RDB020\n" +
+                "Timurs Vahitovs 231RDB096\n" +
+                "Dominiks Stalovičs 231RDB051\n" +
+                "Aleksejs Vereščagins 231RDB115\n");
+    }
+
     public static void writeDecompressedToFile(String decompressedContent, String outputFilePath) throws IOException {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputFilePath))) {
             writer.write(decompressedContent);
         }
     }
 
-    public static void printStatistics(long originalSize, long compressedSize, long decompressedSize){
-        double ratio = (double) originalSize / compressedSize;
-        System.out.println("Original File Size: " + originalSize + " bytes");
-        System.out.println("Compressed File Size: " + compressedSize + " bytes");
-        System.out.println("Decompressed File Size: " + decompressedSize + " bytes");
-        System.out.println("Compression Ratio: " + ratio);
+
+    public static void size(String sourceFile) {
+        try {
+            FileInputStream f = new FileInputStream(sourceFile);
+            System.out.println("size: " + f.available());
+            f.close();
+        }
+        catch (IOException ex) {
+            System.out.println(ex.getMessage());
+        }
+
     }
 
-    public static void compressDecompressFiles(String sourceFilePath){
-        String extension = "";
-        int lastDotIndex = sourceFilePath.lastIndexOf('.');
-        if (lastDotIndex > 0) {
-            extension = sourceFilePath.substring(lastDotIndex);
-        }
-        String sourceWithoutExtension = sourceFilePath.substring(0, sourceFilePath.lastIndexOf('.'));
-        String compressedFilePath = sourceWithoutExtension + ".bin";
-        String decompressedFilePath = sourceWithoutExtension + "_decompressed" + extension;
 
+
+    public static void comp(String sourceFilePath,String resultFile){
         try {
             String originalContent = new String(Files.readAllBytes(Paths.get(sourceFilePath)));
             List<Tuple> compressed = compress(originalContent);
 
-            writeCompressedToFile(compressed, compressedFilePath);
-            List<Tuple> compressedData = readCompressedFromFile(compressedFilePath);
-
-            String decompressedContent = decompress(compressedData);
-            writeDecompressedToFile(decompressedContent, decompressedFilePath);
-
-            // Display comparison
-            long originalSize = new File(sourceFilePath).length();
-            long compressedSize = new File(compressedFilePath).length();
-            long decompressedSize = new File(decompressedFilePath).length();
-
-            printStatistics(originalSize, compressedSize, decompressedSize);
-
-        } catch (IOException e) {
-            System.err.println("Error during processing: " + e.getMessage());
+            writeCompressedToFile(compressed, resultFile);
+        }
+        catch(Exception ex){
+            System.out.println(ex);
         }
     }
 
-    public static void checkString(){
-        String input = "Hello, Hello, Hello!";
-        List<Tuple> compressed = compress(input);
-        String decompressed = decompress(compressed);
-
-        System.out.println("Original: " + input);
-        System.out.println("Compressed: " + compressed);
-        System.out.println("Decompressed: " + decompressed);
+    public static void decomp(String sourceFile,String resultFile){
+        try{
+            List<Tuple> compressedData = readCompressedFromFile(sourceFile);
+            String decompressedContent = decompress(compressedData);
+            writeDecompressedToFile(decompressedContent, resultFile);
+        }catch(Exception ex){
+            System.out.println(ex);
+        }
 
     }
+
+
+    public static boolean equal(String firstFile, String secondFile) {
+        try {
+            FileInputStream f1 = new FileInputStream(firstFile);
+            FileInputStream f2 = new FileInputStream(secondFile);
+            int k1, k2;
+            byte[] buf1 = new byte[1000];
+            byte[] buf2 = new byte[1000];
+            do {
+                k1 = f1.read(buf1);
+                k2 = f2.read(buf2);
+                if (k1 != k2) {
+                    f1.close();
+                    f2.close();
+                    return false;
+                }
+                for (int i=0; i<k1; i++) {
+                    if (buf1[i] != buf2[i]) {
+                        f1.close();
+                        f2.close();
+                        return false;
+                    }
+
+                }
+            } while (!(k1 == -1 && k2 == -1));
+            f1.close();
+            f2.close();
+            return true;
+        }
+        catch (IOException ex) {
+            System.out.println(ex.getMessage());
+            return false;
+        }
+    }
+
+
 
     public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
-        String inputFilePath;
+        Scanner sc = new Scanner(System.in);
+        String choiseStr;
+        String sourceFile, resultFile, firstFile, secondFile;
 
-        while (true) {
-            System.out.println("Enter the path of the file you want to compress ( type 'about' to info or type 'exit' to quit):");
-            inputFilePath = scanner.nextLine();
+        loop: while (true) {
 
-            if (inputFilePath.equalsIgnoreCase("exit")) {
-                break;
-            } else if (inputFilePath.equals("about")) {
-                System.out.println("This program compresses and decompresses text files using the LZ-77 algorithm.");
-                System.out.println();
-                System.out.println("Group name : Pop_u_cenši");
-                System.out.println();
-                System.out.println("Authors:\n" +
-                        "Dāvids Bižāns 231RDB005\n" +
-                        "Andrejs Bistrovs 231RDB020\n" +
-                        "Timurs Vahitovs 231RDB096\n" +
-                        "Dominiks Stalovičs 231RDB051\n" +
-                        "Aleksejs Vereščagins 231RDB115\n");
-                continue;
+            choiseStr = sc.next();
+
+            switch (choiseStr) {
+                case "comp":
+                    System.out.print("source file name: ");
+                    sourceFile = sc.next();
+                    System.out.print("archive name: ");
+                    resultFile = sc.next();
+                    comp(sourceFile, resultFile);
+                    break;
+                case "decomp":
+                    System.out.print("archive name: ");
+                    sourceFile = sc.next();
+                    System.out.print("file name: ");
+                    resultFile = sc.next();
+                    decomp(sourceFile, resultFile);
+                    break;
+                case "size":
+                    System.out.print("file name: ");
+                    sourceFile = sc.next();
+                    size(sourceFile);
+                    break;
+                case "equal":
+                    System.out.print("first file name: ");
+                    firstFile = sc.next();
+                    System.out.print("second file name: ");
+                    secondFile = sc.next();
+                    System.out.println(equal(firstFile, secondFile));
+                    break;
+                case "about":
+                    about();
+                    break;
+                case "exit":
+                    break loop;
             }
-
-            compressDecompressFiles(inputFilePath);
         }
-        scanner.close();
+
+        sc.close();
     }
 }
