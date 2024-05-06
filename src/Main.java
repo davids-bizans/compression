@@ -1,3 +1,9 @@
+//Dāvids Bižāns 231RDB005
+//Andrejs Bistrovs 231RDB020
+//Timurs Vahitovs 231RDB096
+//Dominiks Stalovičs 231RDB051
+//Aleksejs Vereščagins 231RDB115
+
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -6,7 +12,7 @@ import java.util.List;
 import java.util.Scanner;
 
 public class Main {
-    public static final int WINDOW_SIZE = 5000;
+    public static final int WINDOW_SIZE = 60000;
 
     public static class Tuple {
         private final int offset;
@@ -41,8 +47,7 @@ public class Main {
             int searchStart = Math.max(0, pos - WINDOW_SIZE);
             int searchEnd = pos;
 
-            // Search for the longest match within the window
-            for (int i = searchStart; i < searchEnd; i++) {
+            for (int i = searchEnd - 1; i >= searchStart; i--) {
                 int len = 0;
                 while (i + len < searchEnd && pos + len < text.length() && text.charAt(i + len) == text.charAt(pos + len)) {
                     len++;
@@ -72,7 +77,7 @@ public class Main {
             if (tuple.offset > 0 && tuple.length > 0) {
                 int start = builder.length() - tuple.offset;
                 if (start < 0 || start + tuple.length > builder.length()) {
-                    throw new IllegalArgumentException("Invalid offset/length in tuple.");
+                    throw new IllegalArgumentException("Invalid offset or length");
                 }
                 for (int i = 0; i < tuple.length; i++) {
                     builder.append(builder.charAt(start + i));
@@ -119,8 +124,14 @@ public class Main {
     }
 
     public static void compressDecompressFiles(String sourceFilePath){
-        String compressedFilePath = sourceFilePath + ".bin";
-        String decompressedFilePath = sourceFilePath + "_decompressed.txt";
+        String extension = "";
+        int lastDotIndex = sourceFilePath.lastIndexOf('.');
+        if (lastDotIndex > 0) {
+            extension = sourceFilePath.substring(lastDotIndex);
+        }
+        String sourceWithoutExtension = sourceFilePath.substring(0, sourceFilePath.lastIndexOf('.'));
+        String compressedFilePath = sourceWithoutExtension + ".bin";
+        String decompressedFilePath = sourceWithoutExtension + "_decompressed" + extension;
 
         try {
             String originalContent = new String(Files.readAllBytes(Paths.get(sourceFilePath)));
@@ -166,7 +177,7 @@ public class Main {
             if (inputFilePath.equalsIgnoreCase("exit")) {
                 break;
             } else if (inputFilePath.equals("about")) {
-                System.out.println("This program compresses and decompresses text files using the Lempel-Ziv-Welch algorithm.");
+                System.out.println("This program compresses and decompresses text files using the LZ-77 algorithm.");
                 System.out.println();
                 System.out.println("Group name : Pop_u_cenši");
                 System.out.println();
